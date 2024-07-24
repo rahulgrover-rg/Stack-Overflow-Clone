@@ -14,12 +14,18 @@ const Navbar = ({ handleSlideIn }) => {
   const dispatch = useDispatch();
   var User = useSelector((state) => state.currentUserReducer);
   const navigate = useNavigate();
+  const language = useSelector((state) => state.langReducer) ;
 
   const handleLogout = () => {
     dispatch({ type: "LOGOUT" });
     navigate("/");
     dispatch(setCurrentUser(null));
   };
+
+  const handleLanguageChange = (e) => {
+    dispatch({type : "LANG_CHANGE" , data : e.target.value}) ;
+    console.log(language.lang) ;
+  }
 
   useEffect(() => {
     const token = User?.token;
@@ -48,6 +54,14 @@ const Navbar = ({ handleSlideIn }) => {
           <Link to="/" className="nav-item nav-btn res-nav">
             Products
           </Link>
+          <select className="nav-item nav-btn nav-link" onChange={handleLanguageChange}>
+            <option value="">Language</option>
+            {
+              language.allLangs.map((lang,index)=> (
+                <option value={lang.key} >{lang.language}</option>
+              ) )
+            }
+          </select>
           <Link to="/" className="nav-item nav-btn res-nav">
             For Teams
           </Link>

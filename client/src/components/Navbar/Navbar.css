@@ -54,6 +54,7 @@
   text-decoration: none;
   color: rgb(69, 69, 69);
   transition: 0.2s;
+  padding: 10px 20px;
 }
 
 .nav-btn {
@@ -116,4 +117,11 @@
   .navbar .navbar-1 .res-nav {
     display: none;
   }
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 5px 15px;
 }
