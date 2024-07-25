@@ -1,7 +1,10 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import users from "../models/auth.js";
-import sendMail from "./sendMail.js";
+import sendMail from "../utils/sendMail.js";
+import Login from "../models/Login.js"; 
+import { sendOTP, verifyOTP } from "../utils/otpService.js"; 
+import { getUserSystemDetails } from "../utils/systemDetails.js"; 
 
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -28,38 +31,92 @@ export const signup = async (req, res) => {
   }
 };
 
+// Login function with integrated changes
 export const login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const existinguser = await users.findOne({ email });
     if (!existinguser) {
-      return res.status(404).json({ message: "User don't Exist." });
+      return res.status(404).json({ message: "User doesn't exist." });
     }
+    
     const isPasswordCrt = await bcrypt.compare(password, existinguser.password);
     if (!isPasswordCrt) {
       return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Capture system details and IP address
+    console.log(req.headers);
+    const systemDetails = getUserSystemDetails(req.headers['user-agent']);
+    const ipAddress = req.ip;
+    const { browser, os, isMobile } = systemDetails;
+
+    // Save login information
+    const login = new Login({
+      userId: existinguser._id,
+      ipAddress,
+      browser,
+      os,
+      isMobile
+    });
+
+    await login.save();
+    console.log(browser) ;
+
+    // Handle OTP verification for Chrome users
+    if (browser === 'chrome') {
+      const otpToken = sendOTP(existinguser._id,email); // Send OTP to user's email/phone
+      return res.status(200).send({ message: 'OTP sent. Please verify to continue.',otpToken : otpToken, otpRequired: true ,email : email });
+    }
+
+    const token = jwt.sign(
+      { email: existinguser.email, id: existinguser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ result: existinguser, token, otpRequired: false });
+  } catch (error) {
+    res.status(500).json("Something went wrong...");
+  }
+};
+
+// Route to verify OTP
+export const verifyOtp = async (req, res) => {
+  const { otpToken, otp,email } = req.body;
+  console.log(otpToken , otp);
+  const isValid = verifyOTP(otpToken, otp);
+  console.log(isValid) ;
+
+  if (isValid) {
+    const existinguser = await users.findOne({ email });
+    if(!existinguser) {
+      return res.status(404).json({message : 'user not found' , success : false})
     }
     const token = jwt.sign(
       { email: existinguser.email, id: existinguser._id },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    res.status(200).json({ result: existinguser, token });
-  } catch (error) {
-    res.status(500).json("Something went worng...");
+    console.log('hello');
+    return res.status(200).json({ result: existinguser, token, otpRequired: false, message: 'OTP verified. Login successful.',success: true });
   }
+
+  res.status(400).send({ message: 'Invalid OTP. Please try again.' });
 };
 
+// Forgot password function (unchanged)
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
     const existinguser = await users.findOne({ email });
     
     if (!existinguser) {
-      return res.status(404).json({ message: "User don't Exist." });
+      return res.status(404).json({ message: "User doesn't exist." });
     }
 
-    const id = existinguser._id ;
+    const id = existinguser._id;
 
     const token = jwt.sign(
       { email: existinguser.email, id: existinguser._id },
@@ -67,44 +124,36 @@ export const forgotPassword = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    const response = await sendMail(email,"Reset your Password",`http://localhost:3000/Auth/Resetpassword/${id}/${token}`)
+    const response = await sendMail(email, "Reset your Password", `http://localhost:3000/Auth/Resetpassword/${id}/${token}`);
 
-    res.status(200).json({ result: existinguser, token , response});
+    res.status(200).json({ result: existinguser, token, response });
   } catch (error) {
-    res.status(500).json("Something went worng...");
+    res.status(500).json("Something went wrong...");
   }
 };
 
-
+// Reset password function (unchanged)
 export const resetPassword = async (req, res) => {
-  
   const { id, token } = req.params;
   const { password } = req.body;
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return res.status(403).json({
+        success: false,
+        message: 'Error in token'
+      });
+    }
 
-  console.log(process.env.JWT_SECRET) ;
-  console.log(password) ;
-  console.log(id) ;
-  console.log(token) ;
-  const decoded = jwt.verify(token, process.env.JWT_SECRET)
-  if (!decoded) {
-    return res.status(403).json({
-      success: false,
-      message: 'Error in token'
-    })
-  }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const updatedUser = await users.findByIdAndUpdate({ _id: id }, { password: hashedPassword }, { new: true });
 
-  const hashedPassword = await bcrypt.hash(password, 12);
-  const updatedUser = await users.findByIdAndUpdate({ _id: id }, { password: hashedPassword } , {new : true});
-
-  return res.status(200).json({
-    success : true ,
-    message : 'password reset successfully' ,
-    updatedUser : updatedUser,
-  })
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset successfully',
+      updatedUser: updatedUser,
+    });
   } catch (error) {
-    res.status(500).json(error.message);    
+    res.status(500).json(error.message);
   }
-  
-
-}
+};
