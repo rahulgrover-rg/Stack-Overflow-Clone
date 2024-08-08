@@ -1,61 +1,89 @@
-// export const getUserSystemDetails = async(userAgent) => {
-//     const platform = await navigator.userAgent ;
-//     console.log('platform', platform)
-//     const isMobile = /Mobi|Android/i.test(userAgent);
+// export const getUserSystemDetails = (userAgent) => {
+//   // Improved regex for mobile detection
+//   const isMobile = /Mobile|Android|iP(hone|od|ad)|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 
-//     console.log('isMobile' , isMobile);
+//   // Regular expressions to match common browsers
+//   const browserRegexes = [
+//     { name: 'edge', regex: /edg/i }, // Microsoft Edge
+//     { name: 'chrome', regex: /chrome|chromium/i }, // Chrome and Chromium
+//     { name: 'safari', regex: /safari/i }, // Safari
+//     { name: 'firefox', regex: /firefox/i }, // Firefox
+//     { name: 'opera', regex: /opera|opr/i }, // Opera
+//     { name: 'internet explorer', regex: /trident|msie/i } // Internet Explorer
+//   ];
 
-//     let browser;
-//     if (userAgent.indexOf("Chrome") > -1) {
-//         browser = "Chrome";
-//     } else if (userAgent.indexOf("Firefox") > -1) {
-//         browser = "Firefox";
-//     } else if (userAgent.indexOf("Safari") > -1) {
-//         browser = "Safari";
-//     } else if (userAgent.indexOf("MSIE") > -1 || userAgent.indexOf("Trident/") > -1) {
-//         browser = "Internet Explorer";
-//     } else if (userAgent.indexOf("Edge") > -1) {
-//         browser = "Edge";
-//     } else {
-//         browser = "Unknown";
+//   // Determine the browser
+//   let browser = 'unknown';
+//   for (const { name, regex } of browserRegexes) {
+//     if (regex.test(userAgent) && (name !== 'safari' || !/chrome/i.test(userAgent))) {
+//       browser = name;
+//       break;
 //     }
+//   }
 
-//     let os;
-//     if (platform.indexOf("Win") > -1) {
-//         os = "Windows";
-//     } else if (platform.indexOf("Mac") > -1) {
-//         os = "MacOS";
-//     } else if (platform.indexOf("Linux") > -1) {
-//         os = "Linux";
-//     } else if (platform.indexOf("iPhone") > -1 || platform.indexOf("iPad") > -1) {
-//         os = "iOS";
-//     } else if (platform.indexOf("Android") > -1) {
-//         os = "Android";
-//     } else {
-//         os = "Unknown";
+//   // Regular expressions to match common operating systems
+//   const osRegexes = [
+//     { name: 'windows', regex: /windows/i },
+//     { name: 'macos', regex: /macintosh|mac os/i },
+//     { name: 'linux', regex: /linux/i },
+//     { name: 'android', regex: /android/i },
+//     { name: 'ios', regex: /iphone|ipad/i }
+//   ];
+
+//   // Determine the operating system
+//   let os = 'unknown';
+//   for (const { name, regex } of osRegexes) {
+//     if (regex.test(userAgent)) {
+//       os = name;
+//       break;
 //     }
+//   }
 
-//     return { browser, os, isMobile };
-// }
+//   return { browser, os, isMobile };
+// };
+
 export const getUserSystemDetails = (userAgent) => {
-    const platform = userAgent;
-  
-    const isMobile = /Mobi|Android/i.test(userAgent);
-  
-    const browserRegex = /(chrome|safari|firefox|edge|trident|msie|opera)/i;
-    const browserMatch = platform.match(browserRegex);
-    let browser = browserMatch ? browserMatch[1].toLowerCase() : 'unknown';
-  
-    if (browser === 'trident') {
-      browser = 'Internet Explorer';
-    } else if (browser === 'safari' && /chrome/i.test(platform)) {
-      browser = 'chrome'; // If Chrome is embedded in Safari
+  // Improved regex for mobile detection
+  const isMobile = /Mobile|Android|iP(hone|od|ad)|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+
+  // Regular expressions to match common browsers, including Brave
+  const browserRegexes = [
+    { name: 'edge', regex: /edg/i }, // Microsoft Edge
+    { name: 'brave', regex: /brave/i }, // Brave
+    { name: 'chrome', regex: /chrome|chromium/i }, // Chrome and Chromium
+    { name: 'safari', regex: /safari/i }, // Safari
+    { name: 'firefox', regex: /firefox/i }, // Firefox
+    { name: 'opera', regex: /opera|opr/i }, // Opera
+    { name: 'internet explorer', regex: /trident|msie/i } // Internet Explorer
+  ];
+
+  // Determine the browser
+  let browser = 'unknown';
+  for (const { name, regex } of browserRegexes) {
+    if (regex.test(userAgent) && (name !== 'safari' || !/chrome|chromium|brave/i.test(userAgent))) {
+      browser = name;
+      break;
     }
-  
-    const osRegex = /(windows|macos|linux|android|iphone|ipad)/i;
-    const osMatch = platform.match(osRegex);
-    let os = osMatch ? osMatch[1].toLowerCase() : 'unknown';
-  
-    return { browser, os, isMobile };
-  };
-  
+  }
+
+  // Regular expressions to match common operating systems
+  const osRegexes = [
+    { name: 'windows', regex: /windows/i },
+    { name: 'macos', regex: /macintosh|mac os/i },
+    { name: 'linux', regex: /linux/i },
+    { name: 'android', regex: /android/i },
+    { name: 'ios', regex: /iphone|ipad/i }
+  ];
+
+  // Determine the operating system
+  let os = 'unknown';
+  for (const { name, regex } of osRegexes) {
+    if (regex.test(userAgent)) {
+      os = name;
+      break;
+    }
+  }
+
+  return { browser, os, isMobile };
+};
+

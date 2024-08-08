@@ -10,6 +10,7 @@ import Tags from "./Pages/Tags/Tags";
 import Users from "./Pages/Users/Users";
 import UserProfile from "./Pages/UserProfile/UserProfile";
 import ResetPassword from "./Pages/Auth/ResetPassword";
+import AskOTP from "./Pages/Auth/AskOTP";
 
 const AllRoutes = ({ slideIn, handleSlideIn }) => {
   return (
@@ -49,6 +50,9 @@ const AllRoutes = ({ slideIn, handleSlideIn }) => {
         path="/Auth/Resetpassword/:id/:token" 
         element={<ResetPassword />}
         />
+
+  <Route path="/ask-otp" element={<AskOTP />} />
+
     </Routes>
   );
 };

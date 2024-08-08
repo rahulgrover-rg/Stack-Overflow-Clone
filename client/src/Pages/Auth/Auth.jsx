@@ -50,7 +50,7 @@ const Auth = () => {
           setEmail(response.email) ;
           setMessage("OTP sent to your email. Please enter it below.");
         } else {
-          navigate("/"); // Navigate to home on successful login
+          navigate("/");
         }
       });
     }

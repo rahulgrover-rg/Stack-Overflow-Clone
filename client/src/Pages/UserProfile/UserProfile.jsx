@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -63,7 +63,22 @@ const UserProfile = ({ slideIn, handleSlideIn }) => {
             )}
           </>
         </section>
+        <section className="loginHistory">
+          <h2>Login History</h2>
+          {currentUser?.result?.loginHistory.length !== 0 ? 
+          currentUser?.result?.loginHistory.map((login) => 
+            <ul className="login-div">
+              <li><strong>{currentProfile?.name}</strong> logged in on <strong>{login?.timestamp.split("T")[0]}</strong> at <strong>{login?.timestamp.split("T")[1].split(".")[0]}</strong></li>
+              <li><strong>Browser</strong> - {login?.browser}</li>
+              <li><strong>Operating System</strong> - {login?.os}</li>
+              <li><strong>IP Address</strong> - {login?.ipAddress}</li>
+            </ul>
+          )
+          : <p>User signed in for the first time.</p>
+        }
+      </section>
       </div>
+      
     </div>
   );
 };

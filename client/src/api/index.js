@@ -19,6 +19,8 @@ export const signUp = (authData) => API.post("/user/signup", authData);
 export const forgotPassword = (email) => API.post("/user/login/forgotpassword" , {email}) ;
 export const resetPassword = ({newPassword , id , token}) => API.post(`/user/login/resetpassword/${id}/${token}` , {password : newPassword} ) ;
 export const verifyOtp = (otpData) => API.post("/user/verify-otp", otpData);
+export const sendOtpForLanguageChange = (contactData) => API.post('/language/send-otp', contactData);
+export const verifyOtpForLanguageChange = (otpData) => API.post('/language/verify-otp', otpData);
 
 export const postQuestion = (questionData) => API.post("/questions/Ask", questionData);
 export const getAllQuestions = () => API.get("/questions/get");

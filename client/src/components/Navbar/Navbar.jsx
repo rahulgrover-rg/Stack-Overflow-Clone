@@ -2,24 +2,48 @@ import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import decode from "jwt-decode";
-
+import { useTranslation } from 'react-i18next';
 import logo from "../../assets/logo.png";
 import search from "../../assets/search-solid.svg";
 import Avatar from "../../components/Avatar/Avatar";
 import "./Navbar.css";
 import { setCurrentUser } from "../../actions/currentUser";
 import bars from "../../assets/bars-solid.svg";
+import i18n from '../../i18n.js' ;
 
 const Navbar = ({ handleSlideIn }) => {
   const dispatch = useDispatch();
   var User = useSelector((state) => state.currentUserReducer);
+  let language = useSelector((state) => state.langReducer) ;
   const navigate = useNavigate();
+  const languages = [
+    { key: 'en', language: 'English' },
+    { key: 'es', language: 'Spanish' },
+    { key: 'hi', language: 'Hindi' },
+    { key: 'pt', language: 'Portuguese' },
+    { key: 'zh', language: 'Chinese' },
+    { key: 'fr', language: 'French' }
+  ];
+
+  const {t} = useTranslation() ;
+
+  useEffect(() => {
+    const changeLanguage = async () => {
+      await i18n.changeLanguage(language);
+    };
+    changeLanguage();
+  }, [language]);
+
+  const handleLanguageChange = (e) => {
+    const selectedLanguage = e.target.value;
+    navigate('/ask-otp', { state: { language: selectedLanguage } });
+  }
 
   const handleLogout = () => {
     dispatch({ type: "LOGOUT" });
     navigate("/");
     dispatch(setCurrentUser(null));
-  };
+};
 
   useEffect(() => {
     const token = User?.token;
@@ -34,57 +58,62 @@ const Navbar = ({ handleSlideIn }) => {
 
   return (
     <nav className="main-nav">
-      <div className="navbar">
-        <button className="slide-in-icon" onClick={() => handleSlideIn()}>
-          <img src={bars} alt="bars" width="15" />
-        </button>
-        <div className="navbar-1">
-          <Link to="/" className="nav-item nav-logo">
-            <img src={logo} alt="logo" />
-          </Link>
-          <Link to="/" className="nav-item nav-btn res-nav">
-            About
-          </Link>
-          <Link to="/" className="nav-item nav-btn res-nav">
-            Products
-          </Link>
-          <Link to="/" className="nav-item nav-btn res-nav">
-            For Teams
-          </Link>
-          <form>
-            <input type="text" placeholder="Search..." />
-            <img src={search} alt="search" width="18" className="search-icon" />
-          </form>
-        </div>
-        <div className="navbar-2">
-          {User === null ? (
-            <Link to="/Auth" className="nav-item nav-links">
-              Log in
-            </Link>
-          ) : (
-            <>
-              <Avatar
-                backgroundColor="#009dff"
-                px="10px"
-                py="7px"
-                borderRadius="50%"
-                color="white"
-              >
-                <Link
-                  to={`/Users/${User?.result?._id}`}
-                  style={{ color: "white", textDecoration: "none" }}
-                >
-                  {User.result.name.charAt(0).toUpperCase()}
-                </Link>
-              </Avatar>
-              <button className="nav-item nav-links" onClick={handleLogout}>
-                Log out
-              </button>
-            </>
-          )}
-        </div>
+    <div className="navbar">
+      <button className="slide-in-icon" onClick={handleSlideIn}>
+        <img src={bars} alt="bars" width="15" />
+      </button>
+      <div className="navbar-1">
+        <Link to="/" className="nav-item nav-logo">
+          <img src={logo} alt="logo" />
+        </Link>
+        <Link to="/" className="nav-item nav-btn res-nav">
+          {t('about')}
+        </Link>
+        <Link to="/" className="nav-item nav-btn res-nav">
+          {t('products')}
+        </Link>
+        <select onChange={handleLanguageChange} className="nav-item nav-btn res-nav">
+          {languages.map((lang) => (
+            <option key={lang.key} value={lang.key}>{lang.language}</option>
+          ))}
+        </select>
+        <Link to="/" className="nav-item nav-btn res-nav">
+          {t('forTeams')}
+        </Link>
+        <form>
+          <input type="text" placeholder={t('searchPlaceholder')} />
+          <img src={search} alt="search" width="18" className="search-icon" />
+        </form>
       </div>
-    </nav>
+      <div className="navbar-2">
+        {User === null ? (
+          <Link to="/Auth" className="nav-item nav-links">
+            {t('login')}
+          </Link>
+        ) : (
+          <>
+            <Avatar
+              backgroundColor="#009dff"
+              px="10px"
+              py="7px"
+              borderRadius="50%"
+              color="white"
+            >
+              <Link
+                to={`/Users/${User?.result?._id}`}
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                {User.result.name.charAt(0).toUpperCase()}
+              </Link>
+            </Avatar>
+            <button className="nav-item nav-links" onClick={handleLogout}>
+              {t('logout')}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  </nav>
   );
 };
 

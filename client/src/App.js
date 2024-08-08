@@ -1,6 +1,6 @@
 import { BrowserRouter as Router } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import Navbar from "./components/Navbar/Navbar";
 import AllRoutes from "./AllRoutes";
@@ -9,6 +9,26 @@ import { fetchAllUsers } from "./actions/users";
 
 function App() {
   const dispatch = useDispatch();
+
+  const language = useSelector((state) => state.langReducer) ;
+  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
+
+  useEffect(() => {
+    switch (language) {
+      case 'hi':
+        setBackgroundColor('blue');
+        break;
+      case 'zh':
+        setBackgroundColor('green');
+        break;
+      case 'fr':
+        setBackgroundColor('yellow');
+        break;
+      default:
+        setBackgroundColor('white');
+        break;
+    }
+  }, [language]);
 
   useEffect(() => {
     dispatch(fetchAllQuestions());
@@ -30,9 +50,9 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="App" style={{backgroundColor : backgroundColor}}>
       <Router>
-        <Navbar handleSlideIn={handleSlideIn} />
+        <Navbar handleSlideIn={handleSlideIn}/>
         <AllRoutes slideIn={slideIn} handleSlideIn={handleSlideIn} />
       </Router>
     </div>

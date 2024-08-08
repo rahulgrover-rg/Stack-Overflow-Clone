@@ -18,6 +18,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.12",
     "nodemailer": "^6.9.14",
-    "nodemon": "^2.0.14"
+    "nodemon": "^2.0.14",
+    "twilio": "^5.2.2",
+    "ua-parser-js": "^1.0.38",
+    "useragent": "^2.3.0"
   }
 }

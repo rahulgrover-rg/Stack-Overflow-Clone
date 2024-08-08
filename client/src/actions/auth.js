@@ -37,7 +37,6 @@ export const login = (authData, navigate) => async (dispatch) => {
 export const verifyOtp = (otpData, navigate) => async (dispatch) => {
   try {
     const { data } = await api.verifyOtp(otpData);
-console.log(data);
     if (data.success) {
       dispatch({ type: "AUTH", data });
       dispatch(setCurrentUser(JSON.parse(localStorage.getItem("Profile"))));
@@ -68,5 +67,32 @@ export const resetPassword = (authData, navigate) => async (dispatch) => {
     navigate("/Auth");
   } catch (error) {
     console.log(error.message);
+  }
+};
+
+export const sendOtpForLanguageChange = (contactData) => async (dispatch) => {
+  try {
+    const response = await api.sendOtpForLanguageChange(contactData);
+    console.log(response.data) ;
+    if (response.data.success) {
+      dispatch({ type: 'OTP_SENT', payload: response.data });
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+export const verifyOtpForLanguageChange = (otpData) => async (dispatch) => {
+  try {
+    const response = await api.verifyOtpForLanguageChange(otpData);
+    if (response.data.success) {
+      dispatch({ type: 'OTP_VERIFIED', payload: response.data });
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return { success: false, message: error.message };
   }
 };

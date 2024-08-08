@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
   about: { type: String },
   tags: { type: [String] },
   joinedOn: { type: Date, default: Date.now },
+  loginHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Login' }] 
 });
 
 export default mongoose.model("User", userSchema);

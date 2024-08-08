@@ -11,8 +11,8 @@ const transporter = nodemailer.createTransport({
       pass : "yzhkfhxpzpmuvfdo" ,
     }
   })
-
-const sendMail = async(to,subject,html) => {
+// P3CB65F3EFAP618HNNF53XYQ
+export const sendMail = async(to,subject,html) => {
 
     try {
         const mailOptions = {
@@ -36,5 +36,3 @@ const sendMail = async(to,subject,html) => {
         }
     }
 }
-
-export default sendMail ;
